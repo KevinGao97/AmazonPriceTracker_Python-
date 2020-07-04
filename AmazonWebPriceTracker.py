@@ -37,7 +37,7 @@ def main():
     converted_price = float(price[5:10].replace(',', ''))   #extracts the first 5 elements of the price string
 
     
-    if(converted_price > desired_price):
+    if(converted_price < desired_price):
         send_email()
 
 
