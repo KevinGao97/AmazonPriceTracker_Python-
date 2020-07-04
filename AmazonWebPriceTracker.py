@@ -10,7 +10,6 @@ Please do not use Pycharm as there is a known bug with the IDE when inputting a 
 
 """
 
-
 print("Welcome to the Amazon Price Tracking Script!")
 
 URL = input("Please enter full Amazon URL: ")
@@ -32,19 +31,21 @@ def main():
 
     soup = BeautifulSoup(page.content, 'html.parser')
 
-
     title = soup.find(id="productTitle").get_text()
     price = soup.find(id= "priceblock_ourprice").get_text()
     converted_price = float(price[5:10].replace(',', ''))   #extracts the first 5 elements of the price string
 
-    
     if(converted_price < desired_price):
         send_email()
-
 
     print(converted_price)
     print(title.strip())
 
+"""
+This function initializes the gmail port, connecting with the sender email and the specified generated password from gmail.
+Once this connection has been established, it creates a new email with a subject and mail body, as specified by the user, and sends the email.
+
+"""
 def send_email():
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
