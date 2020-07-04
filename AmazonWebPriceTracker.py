@@ -5,11 +5,13 @@ import time
 
 """
 NOTES:
+
 Please do not use Pycharm as there is a known bug with the IDE when inputting a hyperlink into the terminal 
 
 """
-print("Welcome to the Amazon Price Tracking Script!")
 
+
+print("Welcome to the Amazon Price Tracking Script!")
 
 URL = input("Please enter full Amazon URL: ")
 desired_price = float(input("Please enter desired price: "))
@@ -25,7 +27,6 @@ bodyMsg = input("Please enter the body of the email: ")
 headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"}
 
 def main():
-
 
     page = requests.get(URL, headers=headers)
 
