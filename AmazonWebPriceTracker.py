@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import smtplib
 import time
+import os.path
 
 """
 NOTES:
@@ -10,13 +11,37 @@ Please do not use Pycharm as there is a known bug with the IDE when inputting a 
 
 """
 
+filename = 'info.txt'
+
 print("Welcome to the Amazon Price Tracking Script!")
 
+#Creates a new file to store senderEmail, senderPassword, and receipientEmail when running the script the first time
+#If the text file already exists, the program pulls these information from the file
+if os.path.isfile(filename):
+    with open(filename, 'r') as f:
+        senderEmail = f.readline().strip('\n')
+        print(senderEmail)
+        senderPassword = f.readline().strip('\n')
+        print(senderPassword)
+        recipientEmail = f.readline().strip('\n')
+        print(recipientEmail)
+        f.close()
+else:
+    print("The info.txt file is not found. The program will prompt you for the necessary information to create a new info.txt file.")
+    senderEmail = input("Please enter sender email: ")
+    senderPassword = input("Please enter sender password: ")
+    recipientEmail = input("Please enter recipient email: ")
+    with open(filename, 'w') as f:
+        f.write(senderEmail +'\n')
+        f.write(senderPassword +'\n')
+        f.write(recipientEmail +'\n') 
+        f.close()
+    
+
 URL = input("Please enter full Amazon URL: ")
+
 desired_price = float(input("Please enter desired price: "))
-senderEmail = input("Please enter sender email: ")
-senderPassword = input("Please enter sender password: ")
-recipientEmail = input("Please enter recipient email: ")
+
 
 print("This next part will prompt for the subject and body of the email")
 
@@ -33,6 +58,7 @@ def main():
 
     title = soup.find(id="productTitle").get_text()
     price = soup.find(id= "priceblock_ourprice").get_text()
+     
     converted_price = float(price[5:10].replace(',', ''))   #extracts the first 5 elements of the price string
 
     if(converted_price < desired_price):
