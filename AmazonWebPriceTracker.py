@@ -57,15 +57,21 @@ def main():
     soup = BeautifulSoup(page.content, 'html.parser')
 
     title = soup.find(id="productTitle").get_text()
-    price = soup.find(id= "priceblock_ourprice").get_text()
+    try:
+        price = soup.find(id= "priceblock_ourprice").get_text()
+    except AttributeError:
+        try:
+            price = soup.find(id= "priceblock_saleprice").get_text()
+        except AttributeError:
+            print("Cannot find price")
      
     converted_price = float(price[5:10].replace(',', ''))   #extracts the first 5 elements of the price string
+    print(converted_price)
+    print(title.strip())
 
     if(converted_price < desired_price):
         send_email()
-
-    print(converted_price)
-    print(title.strip())
+        exit(0)
 
 """
 This function initializes the gmail port, connecting with the sender email and the specified generated password from gmail.
@@ -87,14 +93,10 @@ def send_email():
     print("An email has been successfully sent!")
     server.quit()
 
-main()
-
-
-#Will check every minute
+#Continous Checking
 #60*60 will check every day
-'''
 while(True):
-    check_price()
+    main()
     time.sleep(60)
 
-'''
+
