@@ -6,6 +6,6 @@ This python script allows users to track when an Amazon item has gone on sale th
 
 Kevin Gao
 
-# Licence & Copywrite
+# License & Copywrite
 
-
+Licensed under the [MIT LICENSE](LICENSE)
