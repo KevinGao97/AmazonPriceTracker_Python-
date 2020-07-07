@@ -42,7 +42,6 @@ URL = input("Please enter full Amazon URL: ")
 
 desired_price = float(input("Please enter desired price: "))
 
-
 print("This next part will prompt for the subject and body of the email")
 
 subjectMsg = input("Please enter the subject line of the email: ")
@@ -56,16 +55,21 @@ def main():
 
     soup = BeautifulSoup(page.content, 'html.parser')
 
-    title = soup.find(id="productTitle").get_text()
     try:
-        price = soup.find(id= "priceblock_ourprice").get_text()
+        title = soup.find(id = "productTitle").get_text()
+    except AttributeError:
+            print("There was a problem retrieving the item. Please try again later.")
+            exit(1)
+    try:
+        price = soup.find(id = "priceblock_ourprice").get_text()
     except AttributeError:
         try:
-            price = soup.find(id= "priceblock_saleprice").get_text()
+            price = soup.find(id = "priceblock_saleprice").get_text()
         except AttributeError:
-            print("Cannot find price")
+            print("Cannot find price of the item.")
+            exit(1)
      
-    converted_price = float(price[5:10].replace(',', ''))   #extracts the first 5 elements of the price string
+    converted_price = float(price[5:10].replace(',', '')) 
     print(converted_price)
     print(title.strip())
 
@@ -74,7 +78,7 @@ def main():
         exit(0)
 
 """
-This function initializes the gmail port, connecting with the sender email and the specified generated password from gmail.
+This function initializes the Gmail port, connecting with the sender email and the specified generated password from gmail.
 Once this connection has been established, it creates a new email with a subject and mail body, as specified by the user, and sends the email.
 
 """
@@ -93,8 +97,7 @@ def send_email():
     print("An email has been successfully sent!")
     server.quit()
 
-#Continous Checking
-#60*60 will check every day
+#Continous checking every minute
 while(True):
     main()
     time.sleep(60)
