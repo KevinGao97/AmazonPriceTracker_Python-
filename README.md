@@ -8,4 +8,4 @@ Kevin Gao
 
 # License & Copywrite
 
-Licensed under the [MIT LICENSE](LICENSE)
+Licensed under [MIT License](LICENSE)
