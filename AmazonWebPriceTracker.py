@@ -60,14 +60,13 @@ for i in range(numEntries):
 def convertLinkToFile(lst):
     
     nameLst = []
-    itemFile = "items.txt"
-
+    
     for i in range(len(lst)):
         page = requests.get(urlLst[i], headers=headers)
         soup = BeautifulSoup(page.content, 'html5lib')
         title = soup.find(id = "productTitle").get_text()
         price = input("Please enter desired price of {}: ".format(title.rstrip().strip()))
-        myfile = open('itemFile', 'a')    
+        myfile = open('items.txt', 'a')    
         myfile.write(title.rstrip().strip() +',')
         myfile.write(price +',')
         myfile.write(urlLst[i])
