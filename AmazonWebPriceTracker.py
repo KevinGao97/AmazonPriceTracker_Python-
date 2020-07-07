@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import smtplib
 import time
 import os.path
+from fake_useragent import UserAgent
 
 """
 NOTES:
@@ -10,8 +11,10 @@ NOTES:
 Please do not use Pycharm as there is a known bug with the IDE when inputting a hyperlink into the terminal 
 
 """
+#ua = UserAgent()
 
 filename = 'info.txt'
+headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"}
 
 print("Welcome to the Amazon Price Tracking Script!")
 
@@ -37,6 +40,48 @@ else:
         f.write(recipientEmail +'\n') 
         f.close()
     
+urlLst = []
+numEntries = 0
+
+entries = input("How many amazon items would you like to track? ")
+
+try:
+    numEntries = int(entries)
+    if numEntries is 0:
+        exit(0)
+except ValueError:
+    print("Not a valid integer. Please enter a positive integer")
+
+
+for i in range(numEntries):
+    response = input("Please enter the full Amazon URL of item {}: ".format(i+1))
+    urlLst.append(response)
+
+def convertLinkToFile(lst):
+    
+    nameLst = []
+    itemFile = "items.txt"
+
+    for i in range(len(lst)):
+        page = requests.get(urlLst[i], headers=headers)
+        soup = BeautifulSoup(page.content, 'html5lib')
+        title = soup.find(id = "productTitle").get_text()
+        price = input("Please enter desired price of {}: ".format(title.rstrip().strip()))
+        myfile = open('itemFile', 'a')    
+        myfile.write(title.rstrip().strip() +',')
+        myfile.write(price +',')
+        myfile.write(urlLst[i])
+        myfile.write('\n')
+        
+        nameLst.append(title.rstrip().strip())
+    myfile.close()
+     
+
+    for i in range(len(nameLst)):
+        print(nameLst[i])
+    return nameLst
+
+convertLinkToFile(urlLst)
 
 URL = input("Please enter full Amazon URL: ")
 
@@ -47,13 +92,13 @@ print("This next part will prompt for the subject and body of the email")
 subjectMsg = input("Please enter the subject line of the email: ")
 bodyMsg = input("Please enter the body of the email: ")
 
-headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"}
+
 
 def main():
 
     page = requests.get(URL, headers=headers)
 
-    soup = BeautifulSoup(page.content, 'html.parser')
+    soup = BeautifulSoup(page.content, 'html5lib')
 
     try:
         title = soup.find(id = "productTitle").get_text()
