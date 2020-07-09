@@ -4,6 +4,7 @@ import smtplib
 import time
 import os.path
 import csv
+import random
 
 """
 NOTES:
@@ -81,7 +82,6 @@ title, amazon price, desired price, link
 def convertLinkToFile(lst):
     
     nameLst = []
-    priceChecked = False
     
     for i in range(len(lst)):
         page = requests.get(lst[i], headers=headers)
@@ -91,7 +91,7 @@ def convertLinkToFile(lst):
         myfile = open('items.txt', 'a')    
         myfile.write(title.replace(",", "").rstrip().strip() +',')          
         myfile.write(price +',')
-        myfile.write(str(priceChecked) +',')
+        myfile.write(str(random.randint(0, 1000000) ) + ',')
         myfile.write(lst[i])
         
         myfile.write('\n')
@@ -108,39 +108,55 @@ def convertLinkToFile(lst):
 def readItemFile():
 
     senderEmail, senderPassword, recipientEmail = firstTimeCheck()
-    URL = ''
-    desired_price = ''
-    subjectMsg = 'Price Drop On: '
-    bodyMsg = 'Please check the following link: '
-
+    emailSentOnItemsLst = []
     
+    if os.path.isfile("itemsPriceDropped.txt"):
+        with open("itemsPriceDropped.txt", "rb") as fp:
+            data2 = eval(fp.readline())
+            emailSentOnItemsLst = data2
+        print(data2)
+
     with open ('items.txt', 'r+') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         itemCount = 0
+        
         for row in csv_reader:
-            print(f'\t Title: {row[0]} Desired Price: {row[1]}. price Checked: {row[2]} URL: {row[3]}.')
-            URL = row[3]
-            desired_price = float(row[1])
-            priceCheck = row[2]
-            subjectMsg = subjectMsg + row[0]
-            bodyMsg = bodyMsg + URL
-
-            page = requests.get(URL, headers=headers)
-            soup = BeautifulSoup(page.content, 'html5lib')
-            try:
-                price = soup.find(id = "priceblock_ourprice").get_text()
-            except AttributeError:
-                try:
-                    price = soup.find(id = "priceblock_saleprice").get_text()
-                except AttributeError:
-                    print("Cannot find price of the item.")
-                    exit(1)
-            converted_price = float(price[5:10].replace(',', ''))
-            if(converted_price < desired_price):
-                send_email(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail)
-                
+            print(f'\t Title: {row[0]} Desired Price: {row[1]}. ID: {row[2]} URL: {row[3]}.')
+            
+            id = int(row[2])
             itemCount += 1
+            if id in emailSentOnItemsLst:
+                print("The desired price of this item has been reached. An email was already sent.")
+            else:
+                URL = row[3]
+                desired_price = float(row[1])
 
+                subjectMsg = 'Price Dropped On: ' + row[0]
+                bodyMsg = 'Please check the following link: ' + URL
+
+                page = requests.get(URL, headers=headers)
+                soup = BeautifulSoup(page.content, 'html5lib')
+                try:
+                    price = soup.find(id = "priceblock_ourprice").get_text()
+                except AttributeError:
+                    try:
+                        price = soup.find(id = "priceblock_saleprice").get_text()
+                    except AttributeError:
+                        try:
+                            price = soup.find(id = "priceblock_dealprice").get_text()
+                        except AttributeError:
+                            print("Cannot find price of the item.")
+                            exit(1)
+                converted_price = float(price[5:10].replace(',', ''))
+                if(converted_price < desired_price):
+                    sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail)
+                    emailSentOnItemsLst.append(id)
+                    
+                
+                with open('itemsPriceDropped.txt', 'w') as fp:
+                    fp.write(str(emailSentOnItemsLst))
+
+        print(emailSentOnItemsLst)    
         print(f'There are {itemCount} items.')
 
     return itemCount
@@ -167,7 +183,7 @@ This function initializes the Gmail port, connecting with the sender email and t
 Once this connection has been established, it creates a new email with a subject and mail body, as specified by the user, and sends the email.
 
 """
-def send_email(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail):
+def sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
