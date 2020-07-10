@@ -9,14 +9,11 @@ import random
 """
 NOTES:
 
-Please do not use Pycharm as there is a known bug with the IDE when inputting a hyperlink into the terminal 
+Please do not use Pycharm to run this program due to a known bug with the IDE when inputting a hyperlink into the terminal.
 
 """
 
-
 headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"}
-
-print("Welcome to the Amazon Price Tracking Script!")
 
 
 """
@@ -36,7 +33,7 @@ def firstTimeCheck():
             print(recipientEmail)
             f.close()
     else:
-        print("The info.txt file is not found. The program will prompt you for the necessary information to create a new info.txt file.")
+        print("The info.txt file was not found. Please enter the necessary information below to create a new info.txt file.")
         senderEmail = input("Please enter sender email: ")
         senderPassword = input("Please enter sender password: ")
         recipientEmail = input("Please enter recipient email: ")
@@ -57,6 +54,7 @@ def createItemLst():
     urlLst = []
     numEntries = 0
 
+    print("Welcome to the Amazon Price Tracking Script!")
     entries = input("How many amazon items would you like to track? ")
 
     try:
@@ -65,7 +63,10 @@ def createItemLst():
             exit(0)
     except ValueError:
         print("Not a valid integer. Please enter a positive integer")
-
+        exit(1)
+    except UnboundLocalError:
+        print("Not a valid integer. Please enter a positive integer")
+        exit(1)
 
     for i in range(numEntries):
         response = input("Please enter the full Amazon URL of item {}: ".format(i+1))
@@ -74,15 +75,14 @@ def createItemLst():
 
 
 """
-Takes the list of URLS, scraps the title and price of each respective link, and appends these information, along with user's desired price to a text file called 'items.txt'
-'item.txt' has the following format:
+Takes the list of URLS, scraps the title of each respective link, and appends these information, along with user's desired price to a text file called 'items.txt'
+The function also creates a random int ID to track each item.
+'items.txt' has the following format:
 
-title, amazon price, desired price, link
+title, desired price, unique id, link
 """
 def convertLinkToFile(lst):
-    
-    nameLst = []
-    
+
     for i in range(len(lst)):
         page = requests.get(lst[i], headers=headers)
         soup = BeautifulSoup(page.content, 'html5lib')
@@ -93,40 +93,42 @@ def convertLinkToFile(lst):
         myfile.write(price +',')
         myfile.write(str(random.randint(0, 1000000) ) + ',')
         myfile.write(lst[i])
-        
         myfile.write('\n')
         
-        nameLst.append(title.rstrip().strip())
     myfile.close()
      
 
-    for i in range(len(nameLst)):
-        print(nameLst[i])
-    return nameLst
-
-
-def readItemFile():
+"""
+Opens the saved 'items.txt' and parses each row/item one-by-one, extracting the URL, desired price, ID, and link. 
+The function checks whether the desired price is below the current price and sends out an email accordingly. 
+If an email was already sent out for an item that has reached the desired price, the function moves onto the next row. 
+The function also performs the first time check to ensure all relevant information is collected for the email portion. 
+"""
+def readItemsFileAndCheck():
 
     senderEmail, senderPassword, recipientEmail = firstTimeCheck()
     emailSentOnItemsLst = []
     
+    #Saves the list of item IDs which the desired price has dropped below the current price and an email was already sent to the user.
     if os.path.isfile("itemsPriceDropped.txt"):
-        with open("itemsPriceDropped.txt", "rb") as fp:
+        with open("itemsPriceDropped.txt", "r") as fp:
             data2 = eval(fp.readline())
             emailSentOnItemsLst = data2
         print(data2)
 
-    with open ('items.txt', 'r+') as csv_file:
+    with open ('items.txt', 'r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         itemCount = 0
         
         for row in csv_reader:
-            print(f'\t Title: {row[0]} Desired Price: {row[1]}. ID: {row[2]} URL: {row[3]}.')
+            print(f'\t Title: {row[0]} Desired Price: {row[1]}. ID: {row[2]} URL: {row[3]}.') 
             
             id = int(row[2])
             itemCount += 1
+
             if id in emailSentOnItemsLst:
-                print("The desired price of this item has been reached. An email was already sent.")
+                print("=========== An email was already sent for this item. ===========")
+                print('\n')
             else:
                 URL = row[3]
                 desired_price = float(row[1])
@@ -148,11 +150,12 @@ def readItemFile():
                             print("Cannot find price of the item.")
                             exit(1)
                 converted_price = float(price[5:10].replace(',', ''))
+
                 if(converted_price < desired_price):
                     sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail)
                     emailSentOnItemsLst.append(id)
-                    
                 
+                #Adds the item id to the list of item prices that have dropped below desired price and an email was sent
                 with open('itemsPriceDropped.txt', 'w') as fp:
                     fp.write(str(emailSentOnItemsLst))
 
@@ -162,21 +165,6 @@ def readItemFile():
     return itemCount
 
 
-
-"""
-To do price check on multiple items:
-
-check the first item, if not desired price, move on to next item.
-Repeat this process every minute
-
-"""
-
-def main():
-
-    urlLst = createItemLst()
-    convertLinkToFile(urlLst)
-    readItemFile()
-    
 
 """
 This function initializes the Gmail port, connecting with the sender email and the specified generated password from gmail.
@@ -196,8 +184,16 @@ def sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail):
 
     #sendmail(FROM, TO, MSG)
     server.sendmail(senderEmail, recipientEmail, msg)
-    print("An email has been successfully sent!")
+    print("An email has been successfully sent to: "+ recipientEmail)
     server.quit()
+
+
+def main():
+
+    urlLst = createItemLst()
+    convertLinkToFile(urlLst)
+    readItemsFileAndCheck()
+    
 
 main()
 
