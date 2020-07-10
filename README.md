@@ -1,6 +1,7 @@
 # AmazonPriceTracker_Python-
 
-This python script allows users to track when an Amazon item has gone on sale through the use of email.
+This python script allows users to track when one or multiple Amazon item has dropped below their desired price through the use of gmail.
+The script will periodically check the prices of the items, specified by the user. 
 
 # Dependencies 
 
