@@ -69,7 +69,7 @@ def createItemLst():
         exit(1)
 
     for i in range(numEntries):
-        response = input("Please enter the full Amazon URL of item {}: ".format(i+1))
+        response = input("Please enter the full Amazon URL of item #{}: ".format(i+1))
         urlLst.append(response)
     return urlLst
 
@@ -162,6 +162,11 @@ def readItemsFileAndCheck():
         print(emailSentOnItemsLst)    
         print(f'There are {itemCount} items.')
 
+        #Exits the script when all items have reached desired price and an email was sent out for each item respectively. 
+        if itemCount == len(emailSentOnItemsLst):
+            print("All items have reached their desired prices and an email was sent out for each item. This script will exit shortly...")
+            exit(0)
+
     return itemCount
 
 
@@ -192,15 +197,12 @@ def main():
 
     urlLst = createItemLst()
     convertLinkToFile(urlLst)
-    readItemsFileAndCheck()
+
+    #Continous checking every minute
+    while True:
+        readItemsFileAndCheck()
+        time.sleep(60)
     
 
 main()
 
-"""
-#Continous checking every minute
-while(True):
-    main()
-    time.sleep(60)
-
-"""
