@@ -26,11 +26,11 @@ def firstTimeCheck():
     if os.path.isfile(filename):
         with open(filename, 'r') as f:
             senderEmail = f.readline().strip('\n')
-            print(senderEmail)
+            print("Sender Email: " + senderEmail)
             senderPassword = f.readline().strip('\n')
-            print(senderPassword)
+            print("Sender Email Password: " + senderPassword)
             recipientEmail = f.readline().strip('\n')
-            print(recipientEmail)
+            print("Recipient Email: " + recipientEmail)
             f.close()
     else:
         print("The info.txt file was not found. Please enter the necessary information below to create a new info.txt file.")
@@ -47,6 +47,30 @@ def firstTimeCheck():
 
 
 """
+Prompts the user for the time delay, in minutes, to check amazon for all items in the 'items.txt' file.
+"""
+def checkTimeDelay():
+
+    timeDelayMinutes = 15
+
+    print("Welcome to the Amazon Price Tracking Script!")
+    timeDelayMinutes = input("When do you want this script to check amazon periodically(in minutes)? ")
+
+    try:
+        timeDelayMinutes = int(timeDelayMinutes)
+        if timeDelayMinutes is 0:
+                exit(0)
+    except ValueError:
+        print("Not a valid integer. Please enter a positive integer")
+        exit(1)
+    except UnboundLocalError:
+        print("Not a valid integer. Please enter a positive integer")
+        exit(1)
+    
+    return timeDelayMinutes
+
+
+"""
 Prompts the user for the number of items they wish to track, prompts for the links one by one, and adds all the Amazon URL links into a list.
 """
 def createItemLst():    
@@ -54,7 +78,7 @@ def createItemLst():
     urlLst = []
     numEntries = 0
 
-    print("Welcome to the Amazon Price Tracking Script!")
+    
     entries = input("How many amazon items would you like to track? ")
 
     try:
@@ -114,7 +138,6 @@ def readItemsFileAndCheck():
         with open("itemsPriceDropped.txt", "r") as fp:
             data2 = eval(fp.readline())
             emailSentOnItemsLst = data2
-        print(data2)
 
     with open ('items.txt', 'r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
@@ -159,9 +182,6 @@ def readItemsFileAndCheck():
                 with open('itemsPriceDropped.txt', 'w') as fp:
                     fp.write(str(emailSentOnItemsLst))
 
-        print(emailSentOnItemsLst)    
-        print(f'There are {itemCount} items.')
-
         #Exits the script when all items have reached desired price and an email was sent out for each item respectively. 
         if itemCount == len(emailSentOnItemsLst):
             print("All items have reached their desired prices and an email was sent out for each item. This script will exit shortly...")
@@ -192,16 +212,20 @@ def sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail):
     print("An email has been successfully sent to: "+ recipientEmail)
     server.quit()
 
+"""
+The Main Function
 
+"""
 def main():
 
+    timeDelay = checkTimeDelay()
     urlLst = createItemLst()
     convertLinkToFile(urlLst)
 
     #Continous checking every minute
     while True:
         readItemsFileAndCheck()
-        time.sleep(60)
+        time.sleep(60*timeDelay)
     
 
 main()
