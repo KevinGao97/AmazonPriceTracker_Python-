@@ -71,6 +71,31 @@ def checkTimeDelay():
 
 
 """
+Checks whether the script has been ran before with the 'items.txt' and 'itemsPriceDropped.txt' being created.
+Asks the user whether they wish to use the existing 'items.txt' or create a new one during execution of the script.
+ 
+"""
+def checkExistingItemsFile():
+
+    itemsFile = 'items.txt'
+    itemsDroppedLstFile = 'itemsPriceDropped.txt'
+
+    if os.path.isfile(itemsFile) and os.path.isfile(itemsDroppedLstFile):
+        while True:
+            answer = input("An items.txt file already exist. Would you like to remove the existing 'items.txt' file? ")
+            if answer.lower() in ['y', 'yes', 'n', 'no']:
+                if answer.lower() in ['y', 'yes']:
+                    os.remove(itemsFile)
+                    os.remove(itemsDroppedLstFile)
+                    break
+                else:
+                    break
+            else:
+                print("Please answer with 'y', 'yes', 'n', 'no' ")
+
+
+
+"""
 Prompts the user for the number of items they wish to track, prompts for the links one by one, and adds all the Amazon URL links into a list.
 """
 def createItemLst():    
@@ -212,6 +237,7 @@ def sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail):
     print("An email has been successfully sent to: "+ recipientEmail)
     server.quit()
 
+
 """
 The Main Function
 
@@ -219,14 +245,20 @@ The Main Function
 def main():
 
     timeDelay = checkTimeDelay()
+    checkExistingItemsFile()
     urlLst = createItemLst()
     convertLinkToFile(urlLst)
+
+    fileChecks = 1
 
     #Continous checking every minute
     while True:
         readItemsFileAndCheck()
         time.sleep(60*timeDelay)
-    
+        fileChecks += 1
+        print("The script is on loop {} with a {} minute checking delay".format(fileChecks,timeDelay))
+
 
 main()
+
 
