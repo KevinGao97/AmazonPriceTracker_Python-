@@ -179,28 +179,30 @@ def readItemsFileAndCheck():
                 print('\n')
             else:
                 URL = row[3]
-                desired_price = float(row[1])
+                desiredPrice = float(row[1])
 
                 subjectMsg = 'Price Dropped On: ' + row[0]
+                desiredPriceMsg = 'Desired Price: $' + str(desiredPrice)
                 bodyMsg = 'Please check the following link: ' + URL
+        
 
                 page = requests.get(URL, headers=headers)
                 soup = BeautifulSoup(page.content, 'html5lib')
                 try:
-                    price = soup.find(id = "priceblock_ourprice").get_text()
+                    price = soup.find(id = "priceblock_dealprice").get_text()
                 except AttributeError:
                     try:
                         price = soup.find(id = "priceblock_saleprice").get_text()
                     except AttributeError:
                         try:
-                            price = soup.find(id = "priceblock_dealprice").get_text()
+                            price = soup.find(id = "priceblock_ourprice").get_text()
                         except AttributeError:
                             print("Cannot find price of the item.")
                             exit(1)
-                converted_price = float(price[5:10].replace(',', ''))
-
-                if(converted_price < desired_price):
-                    sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail)
+                actualPrice = float(price[5:10].replace(',', ''))
+    
+                if(actualPrice < desiredPrice):
+                    sendEmail(subjectMsg, bodyMsg, desiredPriceMsg, senderEmail, senderPassword, recipientEmail)
                     emailSentOnItemsLst.append(id)
                 
                 #Adds the item id to the list of item prices that have dropped below desired price and an email was sent
@@ -221,18 +223,21 @@ This function initializes the Gmail port, connecting with the sender email and t
 Once this connection has been established, it creates a new email with a subject and mail body, as specified by the user, and sends the email.
 
 """
-def sendEmail(subjectMsg, bodyMsg, senderEmail, senderPassword, recipientEmail):
+def sendEmail(subjectMsg, bodyMsg, desiredPriceMsg, senderEmail, senderPassword, recipientEmail):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
     server.ehlo()
     
-    server.login(senderEmail, senderPassword)
+    try:
+        server.login(senderEmail, senderPassword)
+    except smtplib.SMTPAuthenticationError:
+        print("The sender username and password combination is invalid. Please check the info.txt file.")
+        exit(1)
 
-    msg = f"Subject: {subjectMsg}\n\n{bodyMsg}"
+    msg = f"Subject: {subjectMsg}\n\n{desiredPriceMsg}\n\n{bodyMsg}"
 
-    #sendmail(FROM, TO, MSG)
     server.sendmail(senderEmail, recipientEmail, msg)
     print("An email has been successfully sent to: "+ recipientEmail)
     server.quit()
@@ -251,7 +256,7 @@ def main():
 
     fileChecks = 1
 
-    #Continous checking every minute
+    #Continous checking
     while True:
         readItemsFileAndCheck()
         time.sleep(60*timeDelay)
