@@ -6,15 +6,8 @@ import os.path
 import csv
 import random
 
-"""
-NOTES:
-
-Please do not use Pycharm to run this program due to a known bug with the IDE when inputting a hyperlink into the terminal.
-
-"""
 
 headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"}
-
 
 """
 Creates a new file to store senderEmail, senderPassword, and receipientEmail as needed by the mail server when running the script the first time. 
@@ -96,7 +89,7 @@ def checkExistingItemsFile():
 
 
 """
-Prompts the user for the number of items they wish to track, prompts for the links one by one, and adds all the Amazon URL links into a list.
+Prompts the user for the number of items they wish to track, each link one by one, and adds all the Amazon URL links into a list.
 """
 def createItemLst():    
 
@@ -244,7 +237,7 @@ def sendEmail(subjectMsg, bodyMsg, desiredPriceMsg, senderEmail, senderPassword,
 
 
 """
-The Main Function
+The main function
 
 """
 def main():
