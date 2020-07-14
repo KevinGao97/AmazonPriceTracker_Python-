@@ -4,15 +4,20 @@ This python script allows users to track when one or multiple Amazon item has dr
 The script will periodically check the prices of the items, specified by the user. 
 
 ### Dependencies 
-```text
+```
 bs4(Beautiful Soup)
 requests
 html5lib
 ```
 ### Setup
 1. Please ensure you are using Python version 3.6.0 or up.
-2. To install the necessary dependencies, run the following: ```pip install -r requirements ```
+2. To install the necessary dependencies, run the following in CMD or terminal: ```pip install -r requirements ```
 3. This script requires the use of a Google Mail(Gmail) account with the option 'Less secure app access' enabled in the gmail settings.
+4. Running the script for the first time, it will prompt for all the necessary information in sending the alert email which includes:
+    - Sender's email address
+    - Sender's email password(Requires a Gmail generated app password)
+    - Recipient email address
+5. The script will prompt for the amazon item information and desired price through terminal. Additionally, it will output information regarding the current item currently being tracked.
 
 ### Features
 - Price tracks multiple amazon items with a different desired price for each item. 
@@ -23,7 +28,7 @@ html5lib
 - Tracks the lowest price on the page, even when there is a 'lightning' or 'limited-time' deal. 
 
 ### Notes
-Please do not use Pycharm to run this script. There is a known issue in Pycharm when inputting a hyperlink into the terminal
+Please do not use Pycharm to run this script. There is a known issue in Pycharm when inputting a hyperlink into the terminal.
 
 ### Contributors
 
