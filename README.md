@@ -8,8 +8,11 @@ The script will periodically check the prices of the items, specified by the use
 bs4(Beautiful Soup)
 requests
 html5lib
-Google Mail(Gmail) Account
 ```
+### Setup
+1. Please ensure you are using Python version 3.6.0 or up.
+2. To install the necessary dependencies, run the following: ```pip install -r requirements ```
+3. This script requires the use of a Google Mail(Gmail) account with the option 'Less secure app access' enabled in the gmail settings.
 
 ### Features
 - Price tracks multiple amazon items with a different desired price for each item. 
@@ -19,7 +22,8 @@ Google Mail(Gmail) Account
   - Can be changed to be a 1 minute to 1 day delay when checking each item's amazon link.  
 - Tracks the lowest price on the page, even when there is a 'lightning' or 'limited-time' deal. 
 
-### Setup
+### Notes
+Please do not use Pycharm to run this script. There is a known issue in Pycharm when inputting a hyperlink into the terminal
 
 ### Contributors
 
