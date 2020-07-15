@@ -1,7 +1,8 @@
 # AmazonPriceTracker_Python-
 
-This python script allows users to track when one or multiple Amazon item has dropped below their desired price through the use of gmail.
-The script will periodically check the prices of the items, specified by the user. 
+This python script allows users to track one or more items on Amazon has dropped below their desired price, notifying them through gmail.
+The script will periodically check the prices of the items and is adjustable by the user.  
+After exiting this script, the user's gmail information and all tracked items are saved locally. 
 
 ### Dependencies 
 ```
@@ -11,7 +12,7 @@ html5lib
 ```
 ### Setup
 1. Please ensure you are using Python version 3.6.0 or up.
-2. To install the necessary dependencies, run the following in CMD or terminal: ```pip install -r requirements ```
+2. To install the necessary dependencies, run the following in CMD or terminal: ```pip install -r requirements.txt ```
 3. This script requires the use of a Google Mail(Gmail) account with the option 'Less secure app access' enabled in the gmail settings.
 4. Running the script for the first time, it will prompt for all the necessary information in sending the alert email which includes:
     - Sender's email address
