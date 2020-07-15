@@ -18,6 +18,7 @@ html5lib
     - Sender's email password(Requires a Gmail generated app password)
     - Recipient email address
 5. The script will prompt for the amazon item information and desired price through terminal. Additionally, it will output information regarding the current item currently being tracked.
+    - After exiting the script, the current items csv file will be saved locally.  
 
 ### Features
 - Price tracks multiple amazon items with a different desired price for each item. 
