@@ -15,6 +15,7 @@ If the text file already exists, the program pulls these information from the te
 """
 def firstTimeCheck():
 
+    #Checks if the file, 'info.txt' exists. If it exists, read in the user's email, password, and recipient email.
     filename = 'info.txt'
     if os.path.isfile(filename):
         with open(filename, 'r') as f:
@@ -25,6 +26,7 @@ def firstTimeCheck():
             recipientEmail = f.readline().strip('\n')
             print("Recipient Email: " + recipientEmail)
             f.close()
+    #If the file doesn't exist, prompt user for email, password, and recipient email, then create a new 'info.txt' file.
     else:
         print("The info.txt file was not found. Please enter the necessary information below to create a new info.txt file.")
         senderEmail = input("Please enter sender email: ")
@@ -44,11 +46,14 @@ Prompts the user for the time delay, in minutes, to check amazon for all items i
 """
 def checkTimeDelay():
 
+    #Default time delay of 15 minutes. 
     timeDelayMinutes = 15
 
+    #Intro message and time delay prompt. 
     print("Welcome to the Amazon Price Tracking Script!")
     timeDelayMinutes = input("When do you want this script to check amazon periodically(in minutes)? ")
 
+    #Prompting for a valid integer for the time delay, in minutes.
     try:
         timeDelayMinutes = int(timeDelayMinutes)
         if timeDelayMinutes is 0:
@@ -73,8 +78,10 @@ def checkExistingItemsFile():
     itemsFile = 'items.txt'
     itemsDroppedLstFile = 'itemsPriceDropped.txt'
 
+    #Checks if these 2 files were created before, indicating whether this script has been executed in the past. 
     if os.path.isfile(itemsFile) and os.path.isfile(itemsDroppedLstFile):
         while True:
+            #Prompt the user on whether to remove the old 'items.txt' file or not. 
             answer = input("An items.txt file already exist. Would you like to remove the existing 'items.txt' file? ")
             if answer.lower() in ['y', 'yes', 'n', 'no']:
                 if answer.lower() in ['y', 'yes']:
@@ -99,6 +106,7 @@ def createItemLst():
     
     entries = input("How many amazon items would you like to track? ")
 
+    #Prompts for a valid integer, the number of items the user wishes to track.
     try:
         numEntries = int(entries)
         if numEntries is 0:
@@ -125,6 +133,7 @@ title, desired price, unique id, link
 """
 def convertLinkToFile(lst):
 
+    #For each item the user wishes to track, add the name of the item, desired price, a random ID to identify the item, and the users desired price. Write these info into 'items.txt'.
     for i in range(len(lst)):
         page = requests.get(lst[i], headers=headers)
         soup = BeautifulSoup(page.content, 'html5lib')
@@ -157,6 +166,7 @@ def readItemsFileAndCheck():
             data2 = eval(fp.readline())
             emailSentOnItemsLst = data2
 
+    #Read each item in 'items.txt' one by one and get the title, desired price, ID, and URL using the csv reader.
     with open ('items.txt', 'r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         itemCount = 0
@@ -174,11 +184,12 @@ def readItemsFileAndCheck():
                 URL = row[3]
                 desiredPrice = float(row[1])
 
+                #Creates the email message with the subject, body, and the desired price the user has entered.
                 subjectMsg = 'Price Dropped On: ' + row[0]
                 desiredPriceMsg = 'Desired Price: $' + str(desiredPrice)
                 bodyMsg = 'Please check the following link: ' + URL
         
-
+                #Using bs4, find the price of the item, specified by the URL on Amazon.
                 page = requests.get(URL, headers=headers)
                 soup = BeautifulSoup(page.content, 'html5lib')
                 try:
@@ -193,7 +204,8 @@ def readItemsFileAndCheck():
                             print("Cannot find price of the item.")
                             exit(1)
                 actualPrice = float(price[5:10].replace(',', ''))
-    
+
+                #Checks if the desired price is greater than the actual price to determine whether to send email to the user.
                 if(actualPrice < desiredPrice):
                     sendEmail(subjectMsg, bodyMsg, desiredPriceMsg, senderEmail, senderPassword, recipientEmail)
                     emailSentOnItemsLst.append(id)
@@ -218,11 +230,13 @@ Once this connection has been established, it creates a new email with a subject
 """
 def sendEmail(subjectMsg, bodyMsg, desiredPriceMsg, senderEmail, senderPassword, recipientEmail):
 
+    #Connect to the gmail server
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
     server.ehlo()
     
+    #Try to login to gmail with the information the user has provided in the 'info.txt' file.
     try:
         server.login(senderEmail, senderPassword)
     except smtplib.SMTPAuthenticationError:
@@ -231,6 +245,7 @@ def sendEmail(subjectMsg, bodyMsg, desiredPriceMsg, senderEmail, senderPassword,
 
     msg = f"Subject: {subjectMsg}\n\n{desiredPriceMsg}\n\n{bodyMsg}"
 
+    #Send the email with the given message
     server.sendmail(senderEmail, recipientEmail, msg)
     print("An email has been successfully sent to: "+ recipientEmail)
     server.quit()
